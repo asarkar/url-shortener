@@ -41,7 +41,7 @@ The easiest way to run the app is using Docker Compose.
 
 ```
 $ ./gradlew clean assemble && \
-  docker-compose up --build --remove-orphans --no-recreate
+  docker-compose up --build --remove-orphans
 
 $ short=$(curl -sS -X PUT -H "Content-Type: text/plain" "http://localhost:8080" -d "http://localhost:8080/test")
 
