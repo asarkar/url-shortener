@@ -1,0 +1,33 @@
+version: "3.1"
+
+services:
+  consul:
+    image: consul
+    ports:
+      - 8500:8500
+
+  cassandra:
+    image: cassandra:3
+    ports:
+      - 9042:9042
+
+  redis:
+    image: redis:5-alpine
+    ports:
+      - 6379:6379
+
+  url-shortener:
+    build: .
+    image: asarkar/url-shortener
+    restart: on-failure
+    hostname: url-shortener
+    depends_on:
+      - consul
+      - cassandra
+      - redis
+    ports:
+      - 8080:8080
+    environment:
+      - REDIS_URI=redis://redis:6379
+      - CASSANDRA_DEFAULT_CONTACT_POINT=cassandra
+      - CONSUL_CLIENT_HOST=consul

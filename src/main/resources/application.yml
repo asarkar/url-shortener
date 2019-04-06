@@ -1,0 +1,24 @@
+micronaut:
+  application:
+    name: url-shortener
+    instance.id: ${random.shortuuid}
+  server:
+    port: 8080
+  http.client:
+    connect-timeout: 0.5s
+    read-timeout: 2s
+consul:
+  client:
+    host: localhost
+    port: 8500
+    registration.enabled: true
+cassandra.default:
+  contactPoint: localhost
+  port: 9042
+redis:
+  uri: redis://localhost:6379
+  caches:
+    url-cache:
+      expire-after-write: 1h
+app:
+  async-timeout-millis: 2000
