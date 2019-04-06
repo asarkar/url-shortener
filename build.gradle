@@ -52,6 +52,14 @@ application {
 
 test {
     useJUnitPlatform()
+    testLogging {
+        events = ["passed", "skipped", "failed"]
+        exceptionFormat = "short"
+        showCauses = true
+        showExceptions = true
+        showStackTraces = true
+        displayGranularity = 2
+    }
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
