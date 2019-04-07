@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.org/asarkar/url-shortener.svg?branch=master)](https://travis-ci.org/asarkar/url-shortener)
 
 A microservice for shortening a given URL. Inspired by [this](https://www.youtube.com/watch?v=JQDHz72OA3c) system design YouTube video.
+This topic warrants a blog post of its own, but until I get to that, here's a gist.
 
 ## Design Highlights
 
@@ -16,17 +17,21 @@ A microservice for shortening a given URL. Inspired by [this](https://www.youtub
 * Consul was chosen over Zookeeper due to its cleaner design and better performance. See the [references](#references) 
   for one such benchmarking.
 * Cassandra was chosen due to its ability to handle lots of writes.
-* Redis was chosen due to its high availability and performance.
+* Redis was chosen due to its incredible performance. See the [references](#references) for a case study at eHarmony.
 * Runs end-to-end integration tests by spinning up dependent Docker containers; skips the tests if Docker is not
   running.
 
-Of course, to build a Production-grade system, a lot more thought would need to go into this design. Even though the
-chances of collision in Consul is less, it's still a constraint for the system, and we wouldn't want a bunch of
-instances competing for a lock. We will also want to ensure that the data is uniformly partitioned in Cassandra. 
-Lastly, failure cases need to be thought through more clearly; what will happen if an instance exhausts its list of 
-ids but Consul goes down? Or Cassandra fails?
-
-This topic warrants a blog post of its own.
+Of course, to build a Production-grade system, a lot more thought would need to go into this design.
+* Even though the chances of collision in Consul is less, it's still a constraint for the system, and we wouldn't want 
+  a bunch of instances competing for a lock. One way to avoid this is to not use Check-And-Set (CAS) instead of locks,
+  and retry if a write fails.
+* Client-side Consul [leader election](https://www.consul.io/docs/guides/leader-election.html) is a complex topic, 
+  especially when the server enforces a `lock-delay`.
+* Consul [consistency modes](https://www.consul.io/docs/internals/consensus.html#consistency-modes) - the stronger the 
+  mode, the more is read latency.
+* We should ensure that the data is uniformly partitioned in Cassandra. See the [references](#references).
+* Failure cases need to be thought through more clearly; what will happen if an instance exhausts its list of ids but 
+  Consul goes down? Or Cassandra fails?
 
 ## Technologies Used
 
@@ -50,5 +55,8 @@ $ curl -G http://localhost:8080 --data-urlencode "url=$short"
 
 ## References
 
+* [Understanding the (Cassandra) architecture](https://docs.datastax.com/en/cassandra/3.0/cassandra/architecture/archTOC.html)
 * [Designing a Cassandra Data Model](https://shermandigital.com/blog/designing-a-cassandra-data-model/)
 * [From ZooKeeper to Consul](https://dadi.cloud/en/knowledge/network/from-zookeeper-to-consul/)
+* [Consul Architecture](https://www.consul.io/docs/internals/architecture.html)
+* [RedisConf18: Microservices and Redis: A Match made in Heaven - Redis Labs](https://www.youtube.com/watch?v=wfyq_-tWkiY)

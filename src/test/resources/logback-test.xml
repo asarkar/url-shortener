@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%logger{3} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="WARN">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <logger name="org.asarkar" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    <logger name="io.micronaut.http.client" level="WARN" additivity="false">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+
+</configuration>

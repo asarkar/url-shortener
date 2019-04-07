@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.slf4j.LoggerFactory
+import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import java.net.URI
@@ -22,10 +23,11 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.pow
 import kotlin.random.Random
 
-class KGenericContainer(imageName: String, private val exposedPort: Int) : GenericContainer<KGenericContainer>(imageName) {
-    private val LogConsumer = Slf4jLogConsumer(LoggerFactory.getLogger(KGenericContainer::class.java))
+class KGenericContainer(private val imageName: String, private val exposedPort: Int) : GenericContainer<KGenericContainer>(imageName) {
+    private val LogConsumer = Slf4jLogConsumer(LoggerFactory.getLogger("${javaClass.name}.${imageName.capitalize()}"))
 
-    init {
+    override fun configure() {
+        super.configure()
         super.withStartupTimeout(Duration.ofMinutes(1L))
         super.withExposedPorts(exposedPort)
         super.withLogConsumer(LogConsumer)
@@ -44,10 +46,12 @@ class ApplicationTest {
     @BeforeAll
     fun beforeAll() {
         consul = KGenericContainer("consul", 8500)
+                .withEnv("CONSUL_LOCAL_CONFIG", """{ "bootstrap_expect": 1, "server": true, "log_level": "INFO" }""")
                 .apply {
                     start()
                 }
         cassandra = KGenericContainer("cassandra:3", 9042)
+                .withEnv("JVM_EXTRA_OPTS", "-Dcassandra.skip_wait_for_gossip_to_settle=0 -Dcassandra.load_ring_state=false")
                 .apply {
                     start()
                 }
