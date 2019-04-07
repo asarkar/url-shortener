@@ -32,6 +32,8 @@ Of course, to build a Production-grade system, a lot more thought would need to 
 * We should ensure that the data is uniformly partitioned in Cassandra. See the [references](#references).
 * Failure cases need to be thought through more clearly; what will happen if an instance exhausts its list of ids but 
   Consul goes down? Or Cassandra fails?
+  
+Also see the [references](#references) section for security risks associated with short URLs.
 
 ## Technologies Used
 
@@ -60,3 +62,4 @@ $ curl -G http://localhost:8080 --data-urlencode "url=$short"
 * [From ZooKeeper to Consul](https://dadi.cloud/en/knowledge/network/from-zookeeper-to-consul/)
 * [Consul Architecture](https://www.consul.io/docs/internals/architecture.html)
 * [RedisConf18: Microservices and Redis: A Match made in Heaven - Redis Labs](https://www.youtube.com/watch?v=wfyq_-tWkiY)
+* [Gone in Six Characters: Short URLs Considered Harmful for Cloud Services](Short%20URLs%20Considered%20Harmful%20for%20Cloud%20Services.pdf)
