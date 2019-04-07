@@ -1,22 +1,19 @@
 package org.asarkar.urlshortener
 
-import io.micronaut.context.annotation.Parallel
 import io.micronaut.context.annotation.Property
-import io.micronaut.discovery.consul.ConsulConfiguration
 import io.micronaut.discovery.consul.client.v1.ConsulClient
 import io.micronaut.discovery.consul.client.v1.KeyValue
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpStatus
 import io.micronaut.http.client.RxHttpClient
+import io.micronaut.http.client.annotation.Client
 import io.micronaut.http.client.exceptions.HttpClientResponseException
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
 import org.slf4j.LoggerFactory
-import java.net.URL
 import java.util.Base64
-import javax.annotation.PreDestroy
 import javax.inject.Singleton
 
 interface ConsulOperations {
@@ -28,26 +25,17 @@ interface ConsulOperations {
 }
 
 @Singleton
-@Parallel
 class DefaultConsulOperations(
         private val consulClient: ConsulClient,
-        consulConfiguration: ConsulConfiguration,
+        @Client("http://\${consul.client.host}:\${consul.client.port}/v1") private val httpClient: RxHttpClient,
         @Property(name = "micronaut.application.name") private val appName: String,
         @Property(name = "micronaut.application.instance.id") private val instanceId: String
 ) : ConsulOperations {
     private val Log = LoggerFactory.getLogger(DefaultConsulOperations::class.java)
-    private val httpClient = RxHttpClient.create(
-            URL("http://${consulConfiguration.host}:${consulConfiguration.port}")
-    )
+
     private val CounterPath = "/$appName/counter"
     private val LockPath = "/$appName/lock"
-    private val SessionPath = "/v1/session"
-
-    @PreDestroy
-    fun preDestroy() {
-        Log.info("Closing HTTP client")
-        httpClient.close()
-    }
+    private val SessionPath = "/session"
 
     override fun createSession(): Maybe<String> {
         return httpClient
